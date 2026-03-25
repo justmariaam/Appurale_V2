@@ -19,7 +19,6 @@ fun AppNavigation() {
 
     val startDestination = if (nombre.isNullOrEmpty()) "nombre" else "inicio"
 
-    // ✅ CREAR VIEWMODEL AQUÍ
     val rutinaViewModel: RutinaViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = startDestination) {
