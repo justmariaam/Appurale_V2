@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.appurale_v2.pantallas.*
 import com.example.appurale_v2.viewmodel.RutinaViewModel
+import com.example.appurale_v2.viewmodel.TareasViewModel
 
 @Composable
 fun AppNavigation() {
@@ -20,6 +21,7 @@ fun AppNavigation() {
     val startDestination = if (nombre.isNullOrEmpty()) "nombre" else "inicio"
 
     val rutinaViewModel: RutinaViewModel = viewModel()
+    val tareasViewModel: TareasViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = startDestination) {
 
@@ -45,6 +47,19 @@ fun AppNavigation() {
                 navController,
                 rutinaViewModel,
                 index
+            )
+        }
+
+        composable("agregarActividad?index={index}") { backStackEntry ->
+
+            val index = backStackEntry.arguments
+                ?.getString("index")
+                ?.toInt() ?: -1
+
+            PantallaAgregar(
+                navController,
+                index,
+                tareasViewModel
             )
         }
     }

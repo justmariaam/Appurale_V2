@@ -214,7 +214,7 @@ fun PantallaCrearRutina(
             // 🔹 IR A ACTIVIDADES
             Button(
                 onClick = {
-                    navController.navigate("crearActividad")
+                    navController.navigate("agregarActividad?index=-1")
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

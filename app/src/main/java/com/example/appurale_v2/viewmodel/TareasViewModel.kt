@@ -2,17 +2,13 @@ package com.example.appurale_v2.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-
-data class Tarea(
-    val nombre: String,
-    val inicio: Long,
-    val fin: Long,
-    val intervaloVibracion: Long
-)
+import com.example.appurale_v2.modelo.Actividad
 
 class TareasViewModel : ViewModel() {
 
-    val tareas = mutableStateListOf<Tarea>()
+    val tareas = mutableStateListOf<Actividad>()
+
+    private var contadorId = 0
 
     fun agregarTarea(
         nombre: String,
@@ -21,12 +17,16 @@ class TareasViewModel : ViewModel() {
         intervalo: Long
     ) {
 
+        val duracion = ((fin - inicio) / 60000).toInt()
+
         tareas.add(
-            Tarea(
-                nombre,
-                inicio,
-                fin,
-                intervalo
+            Actividad(
+                id = contadorId++,
+                nombre = nombre,
+                duracion = duracion,
+                intervalo = intervalo.toInt(),
+                inicio = inicio,
+                fin = fin
             )
         )
     }
@@ -41,16 +41,20 @@ class TareasViewModel : ViewModel() {
 
         if (index in tareas.indices) {
 
-            tareas[index] = Tarea(
-                nombre,
-                inicio,
-                fin,
-                intervalo
+            val duracion = ((fin - inicio) / 60000).toInt()
+
+            tareas[index] = Actividad(
+                id = tareas[index].id,
+                nombre = nombre,
+                duracion = duracion,
+                intervalo = intervalo.toInt(),
+                inicio = inicio,
+                fin = fin
             )
         }
     }
 
-    fun obtenerTarea(index: Int): Tarea? {
+    fun obtenerTarea(index: Int): Actividad? {
 
         return if (index in tareas.indices) {
             tareas[index]

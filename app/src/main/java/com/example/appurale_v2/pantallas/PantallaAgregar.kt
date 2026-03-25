@@ -26,17 +26,12 @@ fun PantallaAgregar(
 
     var nombre by remember { mutableStateOf("") }
 
-    var inicio by remember {
-        mutableStateOf(System.currentTimeMillis())
-    }
-
-    var fin by remember {
-        mutableStateOf(System.currentTimeMillis())
-    }
+    var inicio by remember { mutableStateOf(System.currentTimeMillis()) }
+    var fin by remember { mutableStateOf(System.currentTimeMillis()) }
 
     var intervalo by remember { mutableStateOf(5L) }
 
-    var tipoDuracion by remember { mutableStateOf("INICIO") }
+    var modoDuracion by remember { mutableStateOf("INICIO/FIN") }
     var expandDuracion by remember { mutableStateOf(false) }
 
     var tipoAlarma by remember { mutableStateOf("ComboBox") }
@@ -44,30 +39,20 @@ fun PantallaAgregar(
 
     var descansos by remember { mutableStateOf(false) }
 
-    var duracionExtra by remember { mutableStateOf("") }
+    var duracionDescanso by remember { mutableStateOf("") }
+
+    val opcionesDuracion = listOf("INICIO/FIN", "TIEMPO")
+    val opcionesIntervalo = listOf(3L, 5L, 10L, 15L)
+    val opcionesTiempo = listOf(30, 60, 90, 120)
+
+    var expandIntervalo by remember { mutableStateOf(false) }
+    var expandTiempo by remember { mutableStateOf(false) }
+
+    var tiempoSeleccionado by remember { mutableStateOf(60) }
 
     val formato = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    val opcionesIntervalo = listOf(3L, 5L, 10L, 15L)
-    val opcionesDuracion = listOf("INICIO", "FIN")
-    val opcionesAlarma = listOf("ComboBox", "Vibración", "Sonido")
-
-    var expandIntervalo by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-
-        if (index >= 0) {
-
-            val t = viewModel.tareas[index]
-
-            nombre = t.nombre
-            inicio = t.inicio
-            fin = t.fin
-            intervalo = t.intervaloVibracion
-        }
-    }
-
-    fun abrirHoraInicio() {
+    fun seleccionarHoraInicio() {
 
         val cal = Calendar.getInstance()
 
@@ -88,7 +73,7 @@ fun PantallaAgregar(
         ).show()
     }
 
-    fun abrirHoraFin() {
+    fun seleccionarHoraFin() {
 
         val cal = Calendar.getInstance()
 
@@ -116,10 +101,7 @@ fun PantallaAgregar(
             .padding(20.dp)
     ) {
 
-        Text(
-            "AGREGAR ACTIVIDAD",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("AGREGAR ACTIVIDAD", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -138,7 +120,7 @@ fun PantallaAgregar(
         ) {
 
             OutlinedTextField(
-                value = tipoDuracion,
+                value = modoDuracion,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("DURACIÓN") },
@@ -155,7 +137,7 @@ fun PantallaAgregar(
                     DropdownMenuItem(
                         text = { Text(it) },
                         onClick = {
-                            tipoDuracion = it
+                            modoDuracion = it
                             expandDuracion = false
                         }
                     )
@@ -165,33 +147,55 @@ fun PantallaAgregar(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        ExposedDropdownMenuBox(
-            expanded = expandAlarma,
-            onExpandedChange = { expandAlarma = !expandAlarma }
-        ) {
+        if (modoDuracion == "INICIO/FIN") {
 
-            OutlinedTextField(
-                value = tipoAlarma,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Tipo de alarma") },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
-            )
+            Button(
+                onClick = { seleccionarHoraInicio() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Inicio: ${formato.format(Date(inicio))}")
+            }
 
-            ExposedDropdownMenu(
-                expanded = expandAlarma,
-                onDismissRequest = { expandAlarma = false }
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Button(
+                onClick = { seleccionarHoraFin() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Fin: ${formato.format(Date(fin))}")
+            }
+        }
+
+        if (modoDuracion == "TIEMPO") {
+
+            ExposedDropdownMenuBox(
+                expanded = expandTiempo,
+                onExpandedChange = { expandTiempo = !expandTiempo }
             ) {
 
-                opcionesAlarma.forEach {
+                OutlinedTextField(
+                    value = "$tiempoSeleccionado minutos",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Tiempo") },
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                )
 
-                    DropdownMenuItem(
-                        text = { Text(it) },
-                        onClick = {
-                            tipoAlarma = it
-                            expandAlarma = false
-                        }
-                    )
+                ExposedDropdownMenu(
+                    expanded = expandTiempo,
+                    onDismissRequest = { expandTiempo = false }
+                ) {
+
+                    opcionesTiempo.forEach {
+
+                        DropdownMenuItem(
+                            text = { Text("$it minutos") },
+                            onClick = {
+                                tiempoSeleccionado = it
+                                expandTiempo = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -200,9 +204,7 @@ fun PantallaAgregar(
 
         ExposedDropdownMenuBox(
             expanded = expandIntervalo,
-            onExpandedChange = {
-                expandIntervalo = !expandIntervalo
-            }
+            onExpandedChange = { expandIntervalo = !expandIntervalo }
         ) {
 
             OutlinedTextField(
@@ -210,26 +212,19 @@ fun PantallaAgregar(
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("ESTABLECER INTERVALOS") },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth()
             )
 
             ExposedDropdownMenu(
                 expanded = expandIntervalo,
-                onDismissRequest = {
-                    expandIntervalo = false
-                }
+                onDismissRequest = { expandIntervalo = false }
             ) {
 
                 opcionesIntervalo.forEach {
 
                     DropdownMenuItem(
-                        text = {
-                            Text("$it minutos")
-                        },
+                        text = { Text("$it minutos") },
                         onClick = {
-
                             intervalo = it
                             expandIntervalo = false
                         }
@@ -244,9 +239,7 @@ fun PantallaAgregar(
 
             Checkbox(
                 checked = descansos,
-                onCheckedChange = {
-                    descansos = it
-                }
+                onCheckedChange = { descansos = it }
             )
 
             Text("Descansos intermedios")
@@ -255,36 +248,38 @@ fun PantallaAgregar(
         Spacer(modifier = Modifier.height(10.dp))
 
         OutlinedTextField(
-            value = duracionExtra,
-            onValueChange = { duracionExtra = it },
-            label = { Text("DURACIÓN") },
+            value = duracionDescanso,
+            onValueChange = { duracionDescanso = it },
+            enabled = descansos,
+            label = { Text("DURACIÓN DESCANSO") },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = {
 
-                if (index == -1) {
+                val inicioFinal: Long
+                val finFinal: Long
 
-                    viewModel.agregarTarea(
-                        nombre,
-                        inicio,
-                        fin,
-                        intervalo
-                    )
+                if (modoDuracion == "TIEMPO") {
+
+                    inicioFinal = System.currentTimeMillis()
+                    finFinal = inicioFinal + tiempoSeleccionado * 60000
 
                 } else {
 
-                    viewModel.actualizarTarea(
-                        index,
-                        nombre,
-                        inicio,
-                        fin,
-                        intervalo
-                    )
+                    inicioFinal = inicio
+                    finFinal = fin
                 }
+
+                viewModel.agregarTarea(
+                    nombre,
+                    inicioFinal,
+                    finFinal,
+                    intervalo
+                )
 
                 navController.popBackStack()
             },
