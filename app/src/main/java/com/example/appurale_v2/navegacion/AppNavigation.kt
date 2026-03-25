@@ -3,9 +3,10 @@ package com.example.appurale_v2.navegacion
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
-import com.example.appurale_v2.pantallas.PantallaInicio
-import com.example.appurale_v2.pantallas.PantallaNombre
+import com.example.appurale_v2.pantallas.*
+import com.example.appurale_v2.viewmodel.RutinaViewModel
 
 @Composable
 fun AppNavigation() {
@@ -18,6 +19,9 @@ fun AppNavigation() {
 
     val startDestination = if (nombre.isNullOrEmpty()) "nombre" else "inicio"
 
+    // ✅ CREAR VIEWMODEL AQUÍ
+    val rutinaViewModel: RutinaViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = startDestination) {
 
         composable("nombre") {
@@ -26,6 +30,23 @@ fun AppNavigation() {
 
         composable("inicio") {
             PantallaInicio(navController)
+        }
+
+        composable("rutinas") {
+            PantallaRutinas(navController, rutinaViewModel)
+        }
+
+        composable("crearRutina?index={index}") { backStackEntry ->
+
+            val index = backStackEntry.arguments
+                ?.getString("index")
+                ?.toInt() ?: -1
+
+            PantallaCrearRutina(
+                navController,
+                rutinaViewModel,
+                index
+            )
         }
     }
 }

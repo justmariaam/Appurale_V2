@@ -28,7 +28,6 @@ import com.example.appurale_v2.R
 @Composable
 fun PantallaInicio(navController: NavController) {
 
-    // 🔥 OBTENER NOMBRE GUARDADO
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("usuario", Context.MODE_PRIVATE)
     val nombre = prefs.getString("nombre", "Usuario")
@@ -114,7 +113,7 @@ fun PantallaInicio(navController: NavController) {
 
             Button(
                 onClick = {
-                    navController.navigate("actividades")
+                    navController.navigate("rutinas")
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFDF220B),
