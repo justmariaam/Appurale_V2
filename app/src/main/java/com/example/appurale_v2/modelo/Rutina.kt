@@ -7,4 +7,5 @@ data class Rutina(
     val dias: List<String>,
     val inicio: Long,
     val fin: Long
+
 )

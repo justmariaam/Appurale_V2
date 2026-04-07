@@ -1,6 +1,7 @@
 package com.example.appurale_v2.pantallas
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,7 +35,7 @@ fun PantallaRutinas(
     var rutinaActiva by remember { mutableStateOf<Int?>(null) }
     var tiempoRestante by remember { mutableStateOf(0L) }
 
-    // 🔥 TEMPORIZADOR
+
     LaunchedEffect(tiempoRestante) {
         if (tiempoRestante > 0) {
             delay(1000)
@@ -78,10 +79,14 @@ fun PantallaRutinas(
                 itemsIndexed(viewModel.lista) { index, rutina ->
 
                     Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                navController.navigate("detalleRutina/$index")
+                            },
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFFfcac03)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                        )
                     ) {
 
                         Column(Modifier.padding(16.dp)) {
@@ -108,13 +113,11 @@ fun PantallaRutinas(
                             )
 
                             Spacer(modifier = Modifier.height(10.dp))
-
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
 
-                                // 🔥 INICIAR
                                 Button(
                                     onClick = {
                                         rutinaActiva = index
@@ -127,7 +130,16 @@ fun PantallaRutinas(
                                     Text("Iniciar", color = Color.Black)
                                 }
 
-                                // 🔥 EDITAR
+                                Button(
+                                    onClick = {
+                                        navController.navigate("detalleRutina/$index")
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.White
+                                    )
+                                ) {
+                                    Text("Ver", color = Color.Black)
+                                }
                                 IconButton(
                                     onClick = {
                                         navController.navigate("crearRutina?index=$index")
@@ -141,7 +153,6 @@ fun PantallaRutinas(
                                 }
                             }
 
-                            // 🔥 TEMPORIZADOR
                             if (rutinaActiva == index) {
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(

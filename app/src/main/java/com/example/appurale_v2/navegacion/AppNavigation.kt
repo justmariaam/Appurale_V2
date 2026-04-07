@@ -50,6 +50,16 @@ fun AppNavigation() {
             )
         }
 
+        composable("detalleRutina/{index}") { backStackEntry ->
+
+            val index = backStackEntry.arguments
+                ?.getString("index")
+                ?.toInt() ?: 0
+
+            val rutina = rutinaViewModel.lista[index]
+
+            PantallaRutina(rutina)
+        }
         composable("agregarActividad?index={index}") { backStackEntry ->
 
             val index = backStackEntry.arguments
@@ -59,7 +69,7 @@ fun AppNavigation() {
             PantallaAgregar(
                 navController,
                 index,
-                tareasViewModel
+                rutinaViewModel
             )
         }
     }

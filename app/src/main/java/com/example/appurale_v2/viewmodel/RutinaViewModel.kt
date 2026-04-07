@@ -28,10 +28,9 @@ class RutinaViewModel : ViewModel() {
         )
     }
 
-    fun agregarActividadARutina(rutinaId: Int, actividad: Actividad) {
-        val index = lista.indexOfFirst { it.id == rutinaId }
+    fun agregarActividadARutina(index: Int, actividad: Actividad) {
+        if (index >= 0 && index < lista.size) {
 
-        if (index != -1) {
             val rutinaActual = lista[index]
 
             val nuevaRutina = rutinaActual.copy(

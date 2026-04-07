@@ -80,7 +80,7 @@ fun PantallaInicio(navController: NavController) {
             ) {
 
                 Text(
-                    text = "APPURALE",
+                    text = "ILoveMyTime",
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,

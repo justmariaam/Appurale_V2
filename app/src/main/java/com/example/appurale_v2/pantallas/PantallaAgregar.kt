@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.appurale_v2.modelo.Actividad
+import com.example.appurale_v2.viewmodel.RutinaViewModel
 import com.example.appurale_v2.viewmodel.TareasViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,7 +21,7 @@ import java.util.*
 fun PantallaAgregar(
     navController: NavController,
     index: Int,
-    viewModel: TareasViewModel
+    viewModel: RutinaViewModel
 ) {
 
     val context = LocalContext.current
@@ -264,22 +266,23 @@ fun PantallaAgregar(
                 val finFinal: Long
 
                 if (modoDuracion == "TIEMPO") {
-
                     inicioFinal = System.currentTimeMillis()
                     finFinal = inicioFinal + tiempoSeleccionado * 60000
-
                 } else {
-
                     inicioFinal = inicio
                     finFinal = fin
                 }
 
-                viewModel.agregarTarea(
-                    nombre,
-                    inicioFinal,
-                    finFinal,
-                    intervalo
+                val actividad = Actividad(
+                    id = System.currentTimeMillis().toInt(),
+                    nombre = nombre,
+                    duracion = tiempoSeleccionado,
+                    intervalo = intervalo.toInt(),
+                    inicio = inicioFinal,
+                    fin = finFinal
                 )
+
+                viewModel.agregarActividadARutina(index, actividad)
 
                 navController.popBackStack()
             },
