@@ -29,15 +29,37 @@ class RutinaViewModel : ViewModel() {
     }
 
     fun agregarActividadARutina(index: Int, actividad: Actividad) {
-        if (index >= 0 && index < lista.size) {
-
+        if (index in lista.indices) {
             val rutinaActual = lista[index]
-
+            val nuevasActividades = rutinaActual.actividades + actividad
             val nuevaRutina = rutinaActual.copy(
-                actividades = rutinaActual.actividades + actividad
+                actividades = nuevasActividades
             )
-
             lista[index] = nuevaRutina
+        }
+    }
+
+    fun eliminarActividadDeRutina(rutinaIndex: Int, actividadIndex: Int) {
+        if (rutinaIndex in lista.indices) {
+            val rutinaActual = lista[rutinaIndex]
+            if (actividadIndex in rutinaActual.actividades.indices) {
+                val nuevasActividades = rutinaActual.actividades.toMutableList()
+                nuevasActividades.removeAt(actividadIndex)
+                val rutinaActualizada = rutinaActual.copy(actividades = nuevasActividades)
+                lista[rutinaIndex] = rutinaActualizada
+            }
+        }
+    }
+
+    fun actualizarActividadEnRutina(rutinaIndex: Int, actividadIndex: Int, nuevaActividad: Actividad) {
+        if (rutinaIndex in lista.indices) {
+            val rutinaActual = lista[rutinaIndex]
+            if (actividadIndex in rutinaActual.actividades.indices) {
+                val nuevasActividades = rutinaActual.actividades.toMutableList()
+                nuevasActividades[actividadIndex] = nuevaActividad
+                val rutinaActualizada = rutinaActual.copy(actividades = nuevasActividades)
+                lista[rutinaIndex] = rutinaActualizada
+            }
         }
     }
 }

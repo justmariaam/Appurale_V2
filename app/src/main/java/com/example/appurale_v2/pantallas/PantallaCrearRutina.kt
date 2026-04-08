@@ -41,7 +41,6 @@ fun PantallaCrearRutina(
     val diasSemana = listOf("D","L","M","X","J","V","S")
     var diasSeleccionados by remember { mutableStateOf(setOf<String>()) }
 
-
     var corriendo by remember { mutableStateOf(false) }
     var tiempoRestante by remember { mutableStateOf(0L) }
 
@@ -90,7 +89,7 @@ fun PantallaCrearRutina(
             .background(Color(0xFFEFEFEF))
     ) {
 
-        // 🔴 HEADER
+        // HEADER
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,15 +110,14 @@ fun PantallaCrearRutina(
             ) {
 
                 Text(
-                    text = if (index == -1) "CREAR RUTINA" else "EDITAR ACTIVIDAD",
+                    text = if (index == -1) "CREAR RUTINA" else "EDITAR RUTINA",
                     style = MaterialTheme.typography.headlineMedium,
                     color = Color.White
                 )
 
-                //  BOTÓN PLAY / PAUSA
+                // BOTÓN PLAY / PAUSA
                 IconButton(
                     onClick = {
-
                         if (!corriendo) {
                             tiempoRestante = fin - inicio
                             corriendo = true
@@ -145,7 +143,7 @@ fun PantallaCrearRutina(
             modifier = Modifier.padding(20.dp)
         ) {
 
-            //MOSTRAR TIEMPO
+            // MOSTRAR TIEMPO
             if (corriendo || tiempoRestante > 0) {
                 Text(
                     text = "Tiempo: ${tiempoRestante / 1000}s",
@@ -163,7 +161,7 @@ fun PantallaCrearRutina(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 🔹 HORA INICIO
+            // HORA INICIO
             Button(
                 onClick = { abrirHora("inicio") },
                 modifier = Modifier.fillMaxWidth()
@@ -175,7 +173,7 @@ fun PantallaCrearRutina(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // 🔹 HORA FIN
+            // HORA FIN
             Button(
                 onClick = { abrirHora("fin") },
                 modifier = Modifier.fillMaxWidth()
@@ -187,7 +185,7 @@ fun PantallaCrearRutina(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 🔹 DÍAS
+            // DÍAS
             Text("¿REPETIR?", fontWeight = FontWeight.Bold)
 
             Row(
@@ -211,47 +209,68 @@ fun PantallaCrearRutina(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 🔹 IR A ACTIVIDADES
+            // 🔥 CORREGIDO: IR A ACTIVIDADES CON EL ÍNDICE CORRECTO
             Button(
                 onClick = {
-                    navController.navigate("agregarActividad?index=-1")
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Agregar actividades a esta rutina")
-            }
-
-            Spacer(modifier = Modifier.height(30.dp))
-
-            // 🔥 GUARDAR
-            Button(
-                onClick = {
-
                     if (nombre.isNotBlank()) {
-
                         if (index == -1) {
-
+                            // Primero guardamos la rutina vacía
                             viewModel.agregar(
                                 nombre,
                                 diasSeleccionados.toList(),
                                 inicio,
                                 fin
                             )
-
+                            // Obtenemos el índice de la nueva rutina
+                            val nuevoIndex = viewModel.lista.size - 1
+                            // Navegamos a agregar actividades con el índice correcto
+                            navController.navigate("agregarActividad?index=$nuevoIndex")
                         } else {
-
+                            // Actualizamos la rutina existente
                             val rutinaActual = viewModel.lista[index]
-
                             val nuevaRutina = rutinaActual.copy(
                                 nombre = nombre,
                                 dias = diasSeleccionados.toList(),
                                 inicio = inicio,
                                 fin = fin
                             )
+                            viewModel.lista[index] = nuevaRutina
+                            // Navegamos a agregar actividades con el índice existente
+                            navController.navigate("agregarActividad?index=$index")
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF8f1414)
+                )
+            ) {
+                Text("Agregar actividades a esta rutina", color = Color.White)
+            }
 
+            Spacer(modifier = Modifier.height(30.dp))
+
+            // GUARDAR Y SALIR
+            Button(
+                onClick = {
+                    if (nombre.isNotBlank()) {
+                        if (index == -1) {
+                            viewModel.agregar(
+                                nombre,
+                                diasSeleccionados.toList(),
+                                inicio,
+                                fin
+                            )
+                        } else {
+                            val rutinaActual = viewModel.lista[index]
+                            val nuevaRutina = rutinaActual.copy(
+                                nombre = nombre,
+                                dias = diasSeleccionados.toList(),
+                                inicio = inicio,
+                                fin = fin
+                            )
                             viewModel.lista[index] = nuevaRutina
                         }
-
                         navController.popBackStack()
                     }
                 },
@@ -260,7 +279,7 @@ fun PantallaCrearRutina(
                     containerColor = Color(0xFF8f1414)
                 )
             ) {
-                Text("Guardar Rutina", color = Color.White)
+                Text("Guardar y salir", color = Color.White)
             }
         }
     }

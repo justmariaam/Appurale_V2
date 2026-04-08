@@ -17,27 +17,34 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaAgregar(
+fun PantallaEditarActividad(
     navController: NavController,
-    index: Int,
-    viewModel: RutinaViewModel
+    rutinaViewModel: RutinaViewModel,
+    rutinaIndex: Int,
+    actividadIndex: Int
 ) {
 
     val context = LocalContext.current
+    val rutina = rutinaViewModel.lista.getOrNull(rutinaIndex)
+    val actividad = rutina?.actividades?.getOrNull(actividadIndex)
 
-    var nombre by remember { mutableStateOf("") }
+    if (rutina == null || actividad == null) {
+        // Si no existe, regresar
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            navController.popBackStack()
+        }
+        return
+    }
 
-    var inicio by remember { mutableStateOf(System.currentTimeMillis()) }
-    var fin by remember { mutableStateOf(System.currentTimeMillis()) }
+    var nombre by remember { mutableStateOf(actividad.nombre) }
+    var inicio by remember { mutableStateOf(actividad.inicio) }
+    var fin by remember { mutableStateOf(actividad.fin) }
+    var intervalo by remember { mutableStateOf(actividad.intervalo.toLong()) }
 
-    var intervalo by remember { mutableStateOf(5L) }
-
-    var modoDuracion by remember { mutableStateOf("INICIO/FIN") }
+    var modoDuracion by remember { mutableStateOf(if (actividad.duracion > 0) "TIEMPO" else "INICIO/FIN") }
     var expandDuracion by remember { mutableStateOf(false) }
 
-    var descansos by remember { mutableStateOf(false) }
-
-    var duracionDescanso by remember { mutableStateOf("") }
+    var tiempoSeleccionado by remember { mutableStateOf(actividad.duracion) }
 
     val opcionesDuracion = listOf("INICIO/FIN", "TIEMPO")
     val opcionesIntervalo = listOf(3L, 5L, 10L, 15L)
@@ -46,22 +53,10 @@ fun PantallaAgregar(
     var expandIntervalo by remember { mutableStateOf(false) }
     var expandTiempo by remember { mutableStateOf(false) }
 
-    var tiempoSeleccionado by remember { mutableStateOf(60) }
-
     val formato = SimpleDateFormat("HH:mm", Locale.getDefault())
 
-    // 🔥 VERIFICAR QUE EL ÍNDICE SEA VÁLIDO
-    if (index == -1 || index >= viewModel.lista.size) {
-        // Si el índice no es válido, regresamos
-        androidx.compose.runtime.LaunchedEffect(Unit) {
-            navController.popBackStack()
-        }
-        return
-    }
-
     fun seleccionarHoraInicio() {
-        val cal = Calendar.getInstance()
-
+        val cal = Calendar.getInstance().apply { timeInMillis = inicio }
         TimePickerDialog(
             context,
             { _, h, m ->
@@ -77,8 +72,7 @@ fun PantallaAgregar(
     }
 
     fun seleccionarHoraFin() {
-        val cal = Calendar.getInstance()
-
+        val cal = Calendar.getInstance().apply { timeInMillis = fin }
         TimePickerDialog(
             context,
             { _, h, m ->
@@ -100,7 +94,7 @@ fun PantallaAgregar(
             .padding(20.dp)
     ) {
 
-        Text("AGREGAR ACTIVIDAD", style = MaterialTheme.typography.headlineMedium)
+        Text("EDITAR ACTIVIDAD", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -117,22 +111,18 @@ fun PantallaAgregar(
             expanded = expandDuracion,
             onExpandedChange = { expandDuracion = !expandDuracion }
         ) {
-
             OutlinedTextField(
                 value = modoDuracion,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("DURACIÓN") },
+                label = { Text("TIPO DE DURACIÓN") },
                 modifier = Modifier.menuAnchor().fillMaxWidth()
             )
-
             ExposedDropdownMenu(
                 expanded = expandDuracion,
                 onDismissRequest = { expandDuracion = false }
             ) {
-
                 opcionesDuracion.forEach {
-
                     DropdownMenuItem(
                         text = { Text(it) },
                         onClick = {
@@ -147,16 +137,13 @@ fun PantallaAgregar(
         Spacer(modifier = Modifier.height(10.dp))
 
         if (modoDuracion == "INICIO/FIN") {
-
             Button(
                 onClick = { seleccionarHoraInicio() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Inicio: ${formato.format(Date(inicio))}")
             }
-
             Spacer(modifier = Modifier.height(6.dp))
-
             Button(
                 onClick = { seleccionarHoraFin() },
                 modifier = Modifier.fillMaxWidth()
@@ -166,27 +153,22 @@ fun PantallaAgregar(
         }
 
         if (modoDuracion == "TIEMPO") {
-
             ExposedDropdownMenuBox(
                 expanded = expandTiempo,
                 onExpandedChange = { expandTiempo = !expandTiempo }
             ) {
-
                 OutlinedTextField(
                     value = "$tiempoSeleccionado minutos",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Tiempo") },
+                    label = { Text("Duración") },
                     modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-
                 ExposedDropdownMenu(
                     expanded = expandTiempo,
                     onDismissRequest = { expandTiempo = false }
                 ) {
-
                     opcionesTiempo.forEach {
-
                         DropdownMenuItem(
                             text = { Text("$it minutos") },
                             onClick = {
@@ -205,22 +187,18 @@ fun PantallaAgregar(
             expanded = expandIntervalo,
             onExpandedChange = { expandIntervalo = !expandIntervalo }
         ) {
-
             OutlinedTextField(
                 value = "$intervalo minutos",
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("ESTABLECER INTERVALOS") },
+                label = { Text("INTERVALO") },
                 modifier = Modifier.menuAnchor().fillMaxWidth()
             )
-
             ExposedDropdownMenu(
                 expanded = expandIntervalo,
                 onDismissRequest = { expandIntervalo = false }
             ) {
-
                 opcionesIntervalo.forEach {
-
                     DropdownMenuItem(
                         text = { Text("$it minutos") },
                         onClick = {
@@ -232,74 +210,55 @@ fun PantallaAgregar(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
-        Row {
-            Checkbox(
-                checked = descansos,
-                onCheckedChange = { descansos = it }
-            )
-            Text("Descansos intermedios")
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        OutlinedTextField(
-            value = duracionDescanso,
-            onValueChange = { duracionDescanso = it },
-            enabled = descansos,
-            label = { Text("DURACIÓN DESCANSO") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {
-
-                if (nombre.isBlank()) return@Button
-
-                val inicioFinal: Long
-                val finFinal: Long
-
-                if (modoDuracion == "TIEMPO") {
-                    inicioFinal = System.currentTimeMillis()
-                    finFinal = inicioFinal + tiempoSeleccionado * 60000L
-                } else {
-                    inicioFinal = inicio
-                    finFinal = fin
-                }
-
-                val actividad = Actividad(
-                    id = System.currentTimeMillis().toInt(),
-                    nombre = nombre,
-                    duracion = if (modoDuracion == "TIEMPO") tiempoSeleccionado else ((finFinal - inicioFinal) / 60000).toInt(),
-                    intervalo = intervalo.toInt(),
-                    inicio = inicioFinal,
-                    fin = finFinal
-                )
-
-                viewModel.agregarActividadARutina(index, actividad)
-
-                navController.popBackStack()
-            },
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF8f1414)
-            )
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text("Guardar Actividad", color = Color.White)
-        }
+            Button(
+                onClick = {
+                    val inicioFinal: Long
+                    val finFinal: Long
 
-        Spacer(modifier = Modifier.height(10.dp))
+                    if (modoDuracion == "TIEMPO") {
+                        inicioFinal = actividad.inicio // Mantener el inicio original
+                        finFinal = inicioFinal + tiempoSeleccionado * 60000L
+                    } else {
+                        inicioFinal = inicio
+                        finFinal = fin
+                    }
 
-        Button(
-            onClick = {
-                navController.popBackStack()
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Cancelar")
+                    val actividadEditada = Actividad(
+                        id = actividad.id,
+                        nombre = nombre,
+                        duracion = if (modoDuracion == "TIEMPO") tiempoSeleccionado else ((finFinal - inicioFinal) / 60000).toInt(),
+                        intervalo = intervalo.toInt(),
+                        inicio = inicioFinal,
+                        fin = finFinal
+                    )
+
+                    // Actualizar la actividad en la rutina
+                    val nuevasActividades = rutina.actividades.toMutableList()
+                    nuevasActividades[actividadIndex] = actividadEditada
+                    val rutinaActualizada = rutina.copy(actividades = nuevasActividades)
+                    rutinaViewModel.lista[rutinaIndex] = rutinaActualizada
+
+                    navController.popBackStack()
+                },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+            ) {
+                Text("Guardar cambios", color = Color.White)
+            }
+
+            Button(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336))
+            ) {
+                Text("Cancelar", color = Color.White)
+            }
         }
     }
 }

@@ -9,13 +9,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import com.example.appurale_v2.modelo.Actividad
 import com.example.appurale_v2.modelo.Rutina
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaRutina(rutina: Rutina) {
+fun PantallaRutina(rutina: Rutina, navController: NavHostController, index: Int) {
 
     Scaffold(
         topBar = {
@@ -112,6 +114,11 @@ fun PreviewPantallaRutina() {
         fin = 16
     )
 
-    PantallaRutina(rutinaFake)
-}
+    val navController = rememberNavController()
 
+    PantallaRutina(
+        rutina = rutinaFake,
+        navController = navController,
+        index = 0
+    )
+}

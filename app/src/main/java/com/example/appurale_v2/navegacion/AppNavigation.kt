@@ -38,11 +38,9 @@ fun AppNavigation() {
         }
 
         composable("crearRutina?index={index}") { backStackEntry ->
-
             val index = backStackEntry.arguments
                 ?.getString("index")
-                ?.toInt() ?: -1
-
+                ?.toIntOrNull() ?: -1
             PantallaCrearRutina(
                 navController,
                 rutinaViewModel,
@@ -51,26 +49,50 @@ fun AppNavigation() {
         }
 
         composable("detalleRutina/{index}") { backStackEntry ->
-
             val index = backStackEntry.arguments
                 ?.getString("index")
-                ?.toInt() ?: 0
-
-            val rutina = rutinaViewModel.lista[index]
-
-            PantallaRutina(rutina)
+                ?.toIntOrNull() ?: -1
+            if (index != -1 && index < rutinaViewModel.lista.size) {
+                val rutina = rutinaViewModel.lista[index]
+                PantallaRutina(
+                    rutina = rutina,
+                    navController = navController,
+                    index = index
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
-        composable("agregarActividad?index={index}") { backStackEntry ->
 
+        composable("agregarActividad?index={index}") { backStackEntry ->
             val index = backStackEntry.arguments
                 ?.getString("index")
-                ?.toInt() ?: -1
-
+                ?.toIntOrNull() ?: -1
             PantallaAgregar(
                 navController,
                 index,
                 rutinaViewModel
             )
+        }
+
+        composable("editarActividad?rutinaIndex={rutinaIndex}&actividadIndex={actividadIndex}") { backStackEntry ->
+            val rutinaIndex = backStackEntry.arguments
+                ?.getString("rutinaIndex")
+                ?.toIntOrNull() ?: -1
+            val actividadIndex = backStackEntry.arguments
+                ?.getString("actividadIndex")
+                ?.toIntOrNull() ?: -1
+
+            if (rutinaIndex != -1 && actividadIndex != -1) {
+                PantallaEditarActividad(
+                    navController,
+                    rutinaViewModel,
+                    rutinaIndex,
+                    actividadIndex
+                )
+            } else {
+                navController.popBackStack()
+            }
         }
     }
 }
